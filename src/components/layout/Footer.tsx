@@ -41,16 +41,16 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contacto</h3>
             <address className="not-italic text-sm text-gray-300 space-y-2">
-              <p>Campus Universitario</p>
-              <p>secretaria.deportes@universidad.edu</p>
-              <p>+54 (011) 4567-8900</p>
+              <p>[INTRODUCIR UBICACION OFICIAL]</p>
+              <p>[INTRODUCIR CORREO OFICIAL]</p>
+              <p>[INTRODUCIR NUMERO OFICIAL]</p>
             </address>
           </div>
         </div>
 
         {/* Copyright */}
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
-          <p>© {currentYear} Deportivo SAE - Secretaría de Asuntos Estudiantiles. Todos los derechos reservados.</p>
+          <p>© {currentYear} SAE UTN-FRT - Secretaría de Asuntos Estudiantiles. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

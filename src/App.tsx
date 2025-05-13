@@ -5,6 +5,7 @@ import { NewsProvider } from './contexts/NewsContext';
 import { GalleryProvider } from './contexts/GalleryContext';
 import { SportsProvider } from './contexts/SportsContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { StandingsProvider } from './contexts/StandingsContext';
 import Layout from './components/layout/Layout';
 import AdminLayout from './components/admin/AdminLayout';
 import GalleryPage from './pages/GalleryPage';
@@ -30,24 +31,26 @@ function App() {
         <NewsProvider>
           <GalleryProvider>
             <SportsProvider>
-              <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<NewsListPage />} />
-                <Route path="noticias/:id" element={<NewsDetailPage />} />
-                <Route path="galeria" element={<GalleryPage />} />
-                <Route path="estadisticas" element={<StatsPage />} />
-                <Route path="admin/login" element={<AdminLoginPage />} />
-                <Route path="admin" element={
-                  <ProtectedAdmin><AdminLayout /></ProtectedAdmin>
-                }>
-                  <Route index element={<DashboardPage />} />
-                  <Route path="noticias" element={<NewsAdminPage />} />
-                  <Route path="galeria" element={<GalleryAdminPage />} />
-                  <Route path="fixture" element={<FixtureAdminPage />} />
-                </Route>
-                <Route path="*" element={<NotFoundPage />} />
-              </Route>
-              </Routes>
+              <StandingsProvider>
+                <Routes>
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<NewsListPage />} />
+                    <Route path="noticias/:id" element={<NewsDetailPage />} />
+                    <Route path="galeria" element={<GalleryPage />} />
+                    <Route path="estadisticas" element={<StatsPage />} />
+                    <Route path="admin/login" element={<AdminLoginPage />} />
+                    <Route path="admin" element={
+                      <ProtectedAdmin><AdminLayout /></ProtectedAdmin>
+                    }>
+                      <Route index element={<DashboardPage />} />
+                      <Route path="noticias" element={<NewsAdminPage />} />
+                      <Route path="galeria" element={<GalleryAdminPage />} />
+                      <Route path="fixture" element={<FixtureAdminPage />} />
+                    </Route>
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Route>
+                </Routes>
+              </StandingsProvider>
             </SportsProvider>
           </GalleryProvider>
         </NewsProvider>

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useSports } from '../contexts/SportsContext';
+import { useStandings } from '../contexts/StandingsContext';
 import { SportType, Match } from '../types/sports';
 import { Calendar } from 'lucide-react';
 import DynamicStandingsTable from '../components/standings/DynamicStandingsTable';
 
 const StatsPage: React.FC = () => {
-  const { matches, getMatchesBySport } = useSports();
+  const { matches } = useSports();
+  const { customStandings } = useStandings();
   const [selectedSport, setSelectedSport] = useState<SportType>('futbol_11_masculino');
   const [searchDate, setSearchDate] = useState('');
 
@@ -164,6 +166,7 @@ const StatsPage: React.FC = () => {
             matches={filteredMatches}
             teams={Array.from(new Set(filteredMatches.flatMap(m => [m.equipoLocal, m.equipoVisitante])))}
             sport={selectedSport}
+            customData={customStandings[selectedSport]}
           />
         </div>
       </div>

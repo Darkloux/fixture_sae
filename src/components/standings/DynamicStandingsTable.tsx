@@ -5,10 +5,11 @@ interface DynamicStandingsTableProps {
   matches: Match[];
   teams: Team[];
   sport: SportType;
+  customData?: any[];
 }
 
 // Configuración de columnas y reglas por disciplina
-const sportConfigs: Record<SportType, {
+export const sportConfigs: Record<SportType, {
   columns: string[];
   rules: {
     PTS: (stats: any) => number;
@@ -84,9 +85,48 @@ const getInitialStats = (columns: string[]) => {
   return base;
 };
 
-const DynamicStandingsTable: React.FC<DynamicStandingsTableProps> = ({ matches, teams, sport }) => {
+const DynamicStandingsTable: React.FC<DynamicStandingsTableProps> = ({ matches, teams, sport, customData }) => {
   const config = sportConfigs[sport];
   if (!config) return <div>No hay configuración para este deporte.</div>;
+
+  // Si hay customData, usarlo directamente
+  if (customData && customData.length > 0) {
+    // Ordenar igual que antes
+    const sorted = [...customData].sort((a: any, b: any) => {
+      if (b.PTS !== a.PTS) return b.PTS - a.PTS;
+      if (b.DIF !== a.DIF) return b.DIF - a.DIF;
+      if (sport.startsWith('futbol') && b.GF !== a.GF) return b.GF - a.GF;
+      if (sport.startsWith('basquet') && b.PF !== a.PF) return b.PF - a.PF;
+      if (sport.startsWith('voley') && b.SG !== a.SG) return b.SG - a.SG;
+      return 0;
+    });
+    return (
+      <div className="overflow-x-auto">
+        <table className="min-w-max w-full text-sm border-collapse">
+          <thead>
+            <tr>
+              {config.columns.map(col => (
+                <th key={col} className="px-3 py-2 bg-gray-100 border-b font-semibold text-gray-700 text-center whitespace-nowrap">
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((stats: any, idx: number) => (
+              <tr key={stats.id} className={idx === 0 ? 'bg-primary/10 font-bold' : ''}>
+                {config.columns.map(col => (
+                  <td key={col} className="px-3 py-2 border-b text-center whitespace-nowrap">
+                    {stats[col] ?? 0}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 
   // Inicializar estadísticas por equipo
   const statsByTeam: Record<string, any> = {};
@@ -96,6 +136,7 @@ const DynamicStandingsTable: React.FC<DynamicStandingsTableProps> = ({ matches, 
 
   // Procesar partidos para calcular estadísticas
   matches.forEach(match => {
+    if (match.estado !== 'finalizado') return; // Solo sumar puntos si el partido está finalizado
     const local = statsByTeam[match.equipoLocal.id];
     const visitante = statsByTeam[match.equipoVisitante.id];
     if (!local || !visitante) return;

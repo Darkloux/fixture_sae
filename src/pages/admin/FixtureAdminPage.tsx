@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSports } from '../../contexts/SportsContext';
+import { useStandings } from '../../contexts/StandingsContext';
 import { Match, Team, SportType } from '../../types/sports';
 import { PlusCircle, Pencil, Trash2, X, Save, Upload } from 'lucide-react';
+import { sportConfigs } from '../../components/standings/DynamicStandingsTable';
+import { calcularStandings } from '../../api/standingsUtils';
+import DynamicStandingsTable from '../../components/standings/DynamicStandingsTable';
 
 const FixtureAdminPage: React.FC = () => {
   const {
@@ -14,6 +18,8 @@ const FixtureAdminPage: React.FC = () => {
     updateTeam,
     deleteTeam
   } = useSports();
+
+  const { setCustomStandings, customStandings } = useStandings();
 
   const [isEditingTeam, setIsEditingTeam] = useState(false);
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
@@ -33,7 +39,7 @@ const FixtureAdminPage: React.FC = () => {
     fecha: new Date().toISOString().slice(0, 16)
   });
 
-  const [activeTab, setActiveTab] = useState<'teams' | 'matches'>('teams');
+  const [activeTab, setActiveTab] = useState<'teams' | 'matches' | 'standings'>('teams');
   const [error, setError] = useState<string>('');
 
   const deportes: { id: SportType; nombre: string }[] = [
@@ -45,6 +51,8 @@ const FixtureAdminPage: React.FC = () => {
     { id: 'voley_masculino', nombre: 'Voley masculino' },
     { id: 'voley_femenino', nombre: 'Voley femenino' },
   ];
+
+  const [selectedSport, setSelectedSport] = useState<SportType>('futbol_11_masculino');
 
   const handleTeamLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,7 +137,6 @@ const FixtureAdminPage: React.FC = () => {
     const matchDate = new Date(matchFormData.fecha);
     const now = new Date();
 
-    // Update estado based on date
     if (matchDate < now && matchFormData.estado === 'programado') {
       matchFormData.estado = 'finalizado';
     }
@@ -155,29 +162,33 @@ const FixtureAdminPage: React.FC = () => {
     setIsEditingMatch(true);
   };
 
+  useEffect(() => {
+    const config = sportConfigs[selectedSport];
+    if (!config) return;
+    const finalizados = matches.filter(m => m.deporte === selectedSport && m.estado === 'finalizado');
+    const standingsAuto = calcularStandings(finalizados, teams, selectedSport);
+    const prev = customStandings[selectedSport] || [];
+    const stringify = (arr: any[]) => JSON.stringify(arr.map(x => ({...x})));
+    if (stringify(standingsAuto) !== stringify(prev)) {
+      setCustomStandings((prevAll: any) => ({ ...prevAll, [selectedSport]: standingsAuto }));
+    }
+  }, [matches, teams, selectedSport]);
+
   return (
     <div className="space-y-6">
-      <div className="flex gap-4 border-b border-gray-200">
+      <div className="flex space-x-4 mb-8">
         <button
+          className={`btn ${activeTab === 'teams' ? 'btn-primary' : 'btn-secondary'}`}
           onClick={() => setActiveTab('teams')}
-          className={`py-2 px-4 -mb-px ${
-            activeTab === 'teams'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-gray-500'
-          }`}
-        >
-          Equipos
-        </button>
+        >Equipos</button>
         <button
+          className={`btn ${activeTab === 'matches' ? 'btn-primary' : 'btn-secondary'}`}
           onClick={() => setActiveTab('matches')}
-          className={`py-2 px-4 -mb-px ${
-            activeTab === 'matches'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-gray-500'
-          }`}
-        >
-          Partidos
-        </button>
+        >Partidos</button>
+        <button
+          className={`btn ${activeTab === 'standings' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setActiveTab('standings')}
+        >Tabla de posiciones</button>
       </div>
 
       {activeTab === 'teams' && (
@@ -572,6 +583,31 @@ const FixtureAdminPage: React.FC = () => {
             ))}
           </div>
         </>
+      )}
+
+      {activeTab === 'standings' && (
+        <div className="mt-8 bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
+          <h2 className="text-lg font-semibold mb-4">Tabla de posiciones</h2>
+          <div className="mb-4 flex flex-col md:flex-row md:items-center md:gap-4 gap-2">
+            <select
+              value={selectedSport}
+              onChange={e => setSelectedSport(e.target.value as SportType)}
+              className="px-4 py-2 border rounded-lg"
+            >
+              {deportes.map(d => (
+                <option key={d.id} value={d.id}>{d.nombre}</option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-2 text-xs text-gray-500">
+            La edición manual de la tabla de posiciones está deshabilitada. Solo los partidos finalizados afectan la tabla.
+          </div>
+          <DynamicStandingsTable
+            matches={matches.filter(m => m.deporte === selectedSport)}
+            teams={teams.filter(t => t)}
+            sport={selectedSport}
+          />
+        </div>
       )}
     </div>
   );

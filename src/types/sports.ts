@@ -1,4 +1,11 @@
-export type SportType = 'futbol' | 'baloncesto' | 'voleibol';
+export type SportType =
+  | 'futbol_11_masculino'
+  | 'futbol_7_femenino'
+  | 'futbol_5_masculino'
+  | 'basquet_5x5_masculino'
+  | 'basquet_5x5_femenino'
+  | 'voley_masculino'
+  | 'voley_femenino';
 
 export interface Team {
   id: string;

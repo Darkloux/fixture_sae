@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
           <div className="flex flex-col">
             <Logo className="h-12 w-auto mb-4 invert" />
             <p className="text-sm text-gray-300 mt-2">
-              Portal institucional de la Secretaría de Asuntos Estudiantiles
+              Portal institucional de las Olimpiadas Deportivas de Educacion Superior de Tucumán.
             </p>
           </div>
 

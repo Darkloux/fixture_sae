@@ -1,22 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useSports } from '../contexts/SportsContext';
 import { SportType, Match } from '../types/sports';
-import { Calendar, ChevronDown } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+import DynamicStandingsTable from '../components/standings/DynamicStandingsTable';
 
 const StatsPage: React.FC = () => {
   const { matches, getMatchesBySport } = useSports();
-  const [selectedSport, setSelectedSport] = useState<SportType>('futbol');
+  const [selectedSport, setSelectedSport] = useState<SportType>('futbol_11_masculino');
   const [searchDate, setSearchDate] = useState('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     document.title = 'Deportivo SAE - Estadísticas';
   }, []);
 
   const deportes: { id: SportType; nombre: string }[] = [
-    { id: 'futbol', nombre: 'Fútbol' },
-    { id: 'baloncesto', nombre: 'Baloncesto' },
-    { id: 'voleibol', nombre: 'Voleibol' }
+    { id: 'futbol_11_masculino', nombre: 'Fútbol 11 masculino' },
+    { id: 'futbol_7_femenino', nombre: 'Fútbol 7 femenino' },
+    { id: 'futbol_5_masculino', nombre: 'Fútbol 5 masculino' },
+    { id: 'basquet_5x5_masculino', nombre: 'Basquet 5x5 masculino' },
+    { id: 'basquet_5x5_femenino', nombre: 'Basquet 5x5 femenino' },
+    { id: 'voley_masculino', nombre: 'Voley masculino' },
+    { id: 'voley_femenino', nombre: 'Voley femenino' },
   ];
 
   const filteredMatches = matches
@@ -52,51 +56,19 @@ const StatsPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           {/* Filters */}
           <div className="flex flex-col md:flex-row gap-4 mb-8">
-            <div className="flex-1 relative">
-              {/* Mobile Dropdown */}
-              <div className="md:hidden w-full">
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full px-4 py-2 bg-white border rounded-lg shadow-sm flex items-center justify-between"
-                >
-                  <span>{deportes.find(d => d.id === selectedSport)?.nombre}</span>
-                  <ChevronDown size={20} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {isDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border z-10">
-                    {deportes.map(deporte => (
-                      <button
-                        key={deporte.id}
-                        onClick={() => {
-                          setSelectedSport(deporte.id);
-                          setIsDropdownOpen(false);
-                        }}
-                        className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${
-                          selectedSport === deporte.id ? 'text-primary font-medium' : 'text-gray-700'
-                        }`}
-                      >
-                        {deporte.nombre}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              {/* Desktop Buttons */}
-              <div className="hidden md:grid grid-cols-3 gap-2">
+            {/* Dropdown universal para deportes */}
+            <div className="w-full">
+              <select
+                value={selectedSport}
+                onChange={e => setSelectedSport(e.target.value as SportType)}
+                className="w-full px-4 py-2 bg-white border rounded-lg shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
                 {deportes.map(deporte => (
-                  <button
-                    key={deporte.id}
-                    onClick={() => setSelectedSport(deporte.id)}
-                    className={`px-3 py-2 rounded-lg font-medium transition-colors text-center ${
-                      selectedSport === deporte.id
-                        ? 'bg-primary text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    } w-full`}
-                  >
+                  <option key={deporte.id} value={deporte.id}>
                     {deporte.nombre}
-                  </button>
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
             <div className="relative">
               <input
@@ -183,6 +155,16 @@ const StatsPage: React.FC = () => {
               {deportes.find(d => d.id === selectedSport)?.nombre || 'Todos los deportes'}
             </span>
           </p>
+        </div>
+
+        {/* Tabla de posiciones dinámica */}
+        <div className="mt-8 bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
+          <h2 className="text-lg font-semibold mb-4">Tabla de posiciones</h2>
+          <DynamicStandingsTable
+            matches={filteredMatches}
+            teams={Array.from(new Set(filteredMatches.flatMap(m => [m.equipoLocal, m.equipoVisitante])))}
+            sport={selectedSport}
+          />
         </div>
       </div>
     </div>

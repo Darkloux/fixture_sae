@@ -25,7 +25,7 @@ const FixtureAdminPage: React.FC = () => {
   const [isEditingMatch, setIsEditingMatch] = useState(false);
   const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
   const [matchFormData, setMatchFormData] = useState<Omit<Match, 'id'>>({
-    deporte: 'futbol',
+    deporte: 'futbol_11_masculino',
     equipoLocal: {} as Team,
     equipoVisitante: {} as Team,
     resultado: { local: 0, visitante: 0 },
@@ -37,9 +37,13 @@ const FixtureAdminPage: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   const deportes: { id: SportType; nombre: string }[] = [
-    { id: 'futbol', nombre: 'Fútbol' },
-    { id: 'baloncesto', nombre: 'Baloncesto' },
-    { id: 'voleibol', nombre: 'Voleibol' }
+    { id: 'futbol_11_masculino', nombre: 'Fútbol 11 masculino' },
+    { id: 'futbol_7_femenino', nombre: 'Fútbol 7 femenino' },
+    { id: 'futbol_5_masculino', nombre: 'Fútbol 5 masculino' },
+    { id: 'basquet_5x5_masculino', nombre: 'Basquet 5x5 masculino' },
+    { id: 'basquet_5x5_femenino', nombre: 'Basquet 5x5 femenino' },
+    { id: 'voley_masculino', nombre: 'Voley masculino' },
+    { id: 'voley_femenino', nombre: 'Voley femenino' },
   ];
 
   const handleTeamLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +101,7 @@ const FixtureAdminPage: React.FC = () => {
 
   const resetMatchForm = () => {
     setMatchFormData({
-      deporte: 'futbol',
+      deporte: 'futbol_11_masculino',
       equipoLocal: {} as Team,
       equipoVisitante: {} as Team,
       resultado: { local: 0, visitante: 0 },

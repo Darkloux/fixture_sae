@@ -46,6 +46,14 @@ const Navbar: React.FC = () => {
             <Logo className="h-12 w-auto" />
           </Link>
 
+          {/* Imagen agregada al centro de la navbar */}
+          <img 
+            src="/images/logos_horizontal.png" 
+            alt="Logo institucional extra" 
+            className="hidden md:block h-10 w-auto mx-8" 
+            style={{flexShrink: 0}} 
+          />
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-2">
             <NavLink to="/" className={({isActive}) => `nav-link ${isActive ? 'active text-primary' : 'text-dark hover:text-primary'}`} end>

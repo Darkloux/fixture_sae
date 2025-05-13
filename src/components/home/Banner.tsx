@@ -18,7 +18,14 @@ const Banner: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="container-custom relative z-10 text-center text-white">
+      <div className="container-custom relative z-10 flex flex-col items-center text-center text-white">
+        {/* Imagen agregada al header */}
+        <img 
+          src="/images/logos_horizontal.png" 
+          alt="Logo institucional" 
+          className="mb-4 max-h-24 bg-white/80 rounded shadow-lg p-2"
+          style={{maxWidth: '90vw'}}
+        />
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-[fadeIn_1s_ease-in]">
           Secretaría Académica de Deportes
         </h1>

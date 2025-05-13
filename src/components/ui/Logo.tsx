@@ -16,7 +16,7 @@ const Logo: React.FC<LogoProps> = ({ className = "" }) => {
         alt="Deportivo SAE Logo" 
         className="h-full w-auto rounded-lg"
       />
-      <span className="ml-2 font-bold text-xl text-dark">Deportivo SAE</span>
+      <span className="ml-2 font-bold text-xl text-dark">Olimpiadas Deportivas</span>
     </div>
   );
 };

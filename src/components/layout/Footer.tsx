@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
   const { isAdmin } = useAdmin();
 
   return (
-    <footer className="bg-dark text-white py-8">
+    <footer className="bg-dark text-white py-8 relative">
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo and Info */}

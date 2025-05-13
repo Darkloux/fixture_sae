@@ -1,0 +1,10 @@
+/* Redirige todas las rutas a index.html para soportar SPA con React Router y Vite */
+/* Esto es necesario para que Netlify maneje correctamente las rutas internas */
+/* Coloca este archivo en la carpeta dist/ después de hacer el build, o en public/ para que se copie automáticamente */
+
+/* Ruta catch-all para SPA */
+/*    /index.html   200
+*/
+
+# Versión simple para Netlify
+/*    /index.html   200

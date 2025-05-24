@@ -41,9 +41,8 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contacto</h3>
             <address className="not-italic text-sm text-gray-300 space-y-2">
-              <p>[INTRODUCIR UBICACION OFICIAL]</p>
-              <p>[INTRODUCIR CORREO OFICIAL]</p>
-              <p>[INTRODUCIR NUMERO OFICIAL]</p>
+              <p>Numero: +54 9 381 654-7205 (IPEF)</p>
+              <p>Numero: +54 9 381 335-1260 (UTN)</p>
             </address>
           </div>
         </div>

@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Logo from '../ui/Logo';
-import { useAdmin } from '../../contexts/AdminContext';
 
 /**
  * Footer component with institutional information
@@ -9,7 +7,6 @@ import { useAdmin } from '../../contexts/AdminContext';
  */
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const { isAdmin } = useAdmin();
 
   return (
     <footer className="bg-dark text-white py-8 relative">
@@ -17,7 +14,6 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo and Info */}
           <div className="flex flex-col">
-            <Logo className="h-12 w-auto mb-4 invert" />
             <p className="text-sm text-gray-300 mt-2">
               Portal institucional de las Olimpiadas Deportivas de Educacion Superior de Tucumán.
             </p>
@@ -28,12 +24,7 @@ const Footer: React.FC = () => {
             <h3 className="text-lg font-semibold mb-4">Enlaces Rápidos</h3>
             <ul className="space-y-2">
               <li><Link to="/" className="text-gray-300 hover:text-primary transition-colors">Noticias</Link></li>
-              <li><Link to="/galeria" className="text-gray-300 hover:text-primary transition-colors">Galería</Link></li>
               <li><Link to="/estadisticas" className="text-gray-300 hover:text-primary transition-colors">Estadísticas</Link></li>
-              <li><Link to="/admin/login" className="text-gray-300 hover:text-primary transition-colors">Panel de Control</Link></li>
-              {isAdmin && (
-                <li><Link to="/admin" className="text-gray-300 hover:text-primary transition-colors">Panel de Control</Link></li>
-              )}
             </ul>
           </div>
 
@@ -41,9 +32,8 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contacto</h3>
             <address className="not-italic text-sm text-gray-300 space-y-2">
-              <p>[INTRODUCIR UBICACION OFICIAL]</p>
-              <p>[INTRODUCIR CORREO OFICIAL]</p>
-              <p>[INTRODUCIR NUMERO OFICIAL]</p>
+              <p>+54 9 3816 54-7205 (IPEF)</p>
+              <p>+54 9 3813 35-1260 (UTN)</p>
             </address>
           </div>
         </div>

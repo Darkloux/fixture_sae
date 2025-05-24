@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useGallery } from '../contexts/GalleryContext';
 import { Play } from 'lucide-react';
+import { GalleryItem } from '../types/gallery';
 
 const GalleryPage: React.FC = () => {
-  const { items } = useGallery();
+  const { items }: { items: GalleryItem[] } = useGallery();
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   useEffect(() => {

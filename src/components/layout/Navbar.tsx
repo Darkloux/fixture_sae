@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Logo from '../ui/Logo';
-import { useAdmin } from '../../contexts/AdminContext';
 
 /**
  * Navigation component that stays fixed at the top
@@ -11,7 +10,6 @@ import { useAdmin } from '../../contexts/AdminContext';
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { isAdmin } = useAdmin();
 
   // Handle scroll effect for navbar background
   useEffect(() => {
@@ -50,7 +48,7 @@ const Navbar: React.FC = () => {
           <img 
             src="/images/logos_horizontal.png" 
             alt="Logo institucional extra" 
-            className="hidden md:block h-10 w-auto mx-8" 
+            className="hidden md:block h-14 w-auto mx-8" 
             style={{flexShrink: 0}} 
           />
 
@@ -58,9 +56,6 @@ const Navbar: React.FC = () => {
           <nav className="hidden md:flex items-center space-x-2">
             <NavLink to="/" className={({isActive}) => `nav-link ${isActive ? 'active text-primary' : 'text-dark hover:text-primary'}`} end>
               Noticias
-            </NavLink>
-            <NavLink to="/galeria" className={({isActive}) => `nav-link ${isActive ? 'active text-primary' : 'text-dark hover:text-primary'}`}>
-              Galería
             </NavLink>
             <NavLink to="/estadisticas" className={({isActive}) => `nav-link ${isActive ? 'active text-primary' : 'text-dark hover:text-primary'}`}>
               Estadísticas
@@ -104,15 +99,6 @@ const Navbar: React.FC = () => {
             Noticias
           </NavLink>
           <NavLink 
-            to="/galeria" 
-            className={({isActive}) => `w-full py-5 px-8 text-lg font-medium ${
-              isActive ? 'text-primary bg-primary/10 font-bold' : 'text-gray-800 hover:bg-gray-100'
-            }`}
-            onClick={closeMenu}
-          >
-            Galería
-          </NavLink>
-          <NavLink 
             to="/estadisticas" 
             className={({isActive}) => `w-full py-5 px-8 text-lg font-medium ${
               isActive ? 'text-primary bg-primary/10 font-bold' : 'text-gray-800 hover:bg-gray-100'
@@ -121,17 +107,6 @@ const Navbar: React.FC = () => {
           >
             Estadísticas
           </NavLink>
-          {isAdmin && (
-            <NavLink 
-              to="/admin" 
-              className={({isActive}) => `w-full py-5 px-8 text-lg font-medium ${
-                isActive ? 'text-primary bg-primary/10 font-bold' : 'text-gray-900 hover:bg-gray-100'
-              }`}
-              onClick={closeMenu}
-            >
-              Panel de Control
-            </NavLink>
-          )}
         </nav>
       </div>
     </header>

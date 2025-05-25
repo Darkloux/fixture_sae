@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
   Newspaper, 
-  Image, 
   Calendar, 
   LogOut,
   Menu,
@@ -15,7 +13,6 @@ const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { logout } = useAdmin();
   const navigate = useNavigate();
-  const [isScrolled, setIsScrolled] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -24,7 +21,6 @@ const AdminLayout: React.FC = () => {
 
   const navItems = [
     { icon: Newspaper, label: 'Noticias', path: '/admin/noticias' },
-    { icon: Image, label: 'Galería', path: '/admin/galeria' },
     { icon: Calendar, label: 'Fixture', path: '/admin/fixture' }
   ];
 

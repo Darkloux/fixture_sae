@@ -1,19 +1,16 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNews } from '../../contexts/NewsContext';
-import { useGallery } from '../../contexts/GalleryContext';
 import { useSports } from '../../contexts/SportsContext';
-import { Users, Newspaper, Image, Calendar } from 'lucide-react';
+import { Newspaper, Calendar } from 'lucide-react';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { news } = useNews();
-  const { items: galleryItems } = useGallery();
   const { matches } = useSports();
 
   const stats = [
     { icon: Newspaper, label: 'Noticias Publicadas', value: news.length.toString() },
-    { icon: Image, label: 'Items en Galería', value: galleryItems.length.toString() },
     { icon: Calendar, label: 'Partidos Registrados', value: matches.length.toString() },
   ];
 
@@ -41,4 +38,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage
+export default DashboardPage;

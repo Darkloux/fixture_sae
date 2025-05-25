@@ -1,0 +1,36 @@
+[
+  {
+    "id": "match-1748133129214_local",
+    "id_partido": "match-1748133129214",
+    "deporte": "futbol_11_masculino",
+    "type_sport": "futbol_11_masculino",
+    "id_equipo": "team-1748133096454",
+    "nombre_equipo": "a",
+    "icon_equipo": "",
+    "es_local": 1,
+    "goles_favor": 1,
+    "goles_contra": 0,
+    "estado": "finalizado",
+    "name_partido": "123",
+    "name_cancha": "123",
+    "fecha": "2025-05-25",
+    "hora": "00:31"
+  },
+  {
+    "id": "match-1748133129214_visitante",
+    "id_partido": "match-1748133129214",
+    "deporte": "futbol_11_masculino",
+    "type_sport": "futbol_11_masculino",
+    "id_equipo": "team-1748133099169",
+    "nombre_equipo": "c",
+    "icon_equipo": "",
+    "es_local": 0,
+    "goles_favor": 0,
+    "goles_contra": 1,
+    "estado": "finalizado",
+    "name_partido": "123",
+    "name_cancha": "123",
+    "fecha": "2025-05-25",
+    "hora": "00:31"
+  }
+]

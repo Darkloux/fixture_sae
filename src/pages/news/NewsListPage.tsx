@@ -14,20 +14,17 @@ const NewsListPage: React.FC = () => {
     <div className="pt-24 pb-16">
       <div className="container-custom">
         <div className="max-w-4xl mx-auto">
-          {/* Noticia principal destacada */}
-          <div className="mb-8 p-6 bg-primary/10 border-l-4 border-primary rounded-lg shadow">
-            <h2 className="font-extrabold text-xl md:text-2xl text-primary leading-tight uppercase mb-2">
-              2° OLIMPIADAS DEPORTIVAS DE EDUCACIÓN SUPERIOR DE TUCUMÁN
-            </h2>
-            <p className="text-sm md:text-base text-dark mb-2">
-              El comité organizador de las Olimpiadas Deportivas de Educación Superior de Tucumán 2025, tiene el agrado de invitarle al acto de lanzamiento el día 6 de Mayo.
-            </p>
-            <div className="text-sm md:text-base text-dark flex flex-wrap gap-4">
-              <span>📅 <b>MARTES 06/05</b></span>
-              <span>🏫 <b>AULA MAGNA - UTN TUC</b></span>
-              <span>📍 <b>Rivadavia 1050 - San Miguel de Tucumán</b></span>
-              <span>🕖 <b>19:00 HS</b></span>
-            </div>
+          {/* Apartado de Ubicaciones */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Ubicaciones</h2>
+            <ul className="space-y-2">
+              <li>
+                Basquet - <a href="https://maps.app.goo.gl/fV1eQNDyTb1FkefL9?g_st=aw" target="_blank" rel="noopener noreferrer" className="text-orange-500 font-semibold hover:underline">Ir alli (Complejo Avellaneda)</a>
+              </li>
+              <li>
+                Voley - <a href="https://maps.app.goo.gl/psWbpmy15u6ZPgBVA" target="_blank" rel="noopener noreferrer" className="text-orange-500 font-semibold hover:underline">Ir alli (Complejo Dickens)</a>
+              </li>
+            </ul>
           </div>
           <h1 className="text-3xl font-bold mb-2">Últimas Noticias</h1>
           <p className="text-gray-600 mb-8">Mantente informado sobre las últimas novedades deportivas</p>

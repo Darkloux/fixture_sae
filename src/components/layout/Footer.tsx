@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Logo from '../ui/Logo';
 import { useAdmin } from '../../contexts/AdminContext';
 
 /**
@@ -17,7 +16,8 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo and Info */}
           <div className="flex flex-col">
-            <Logo className="h-12 w-auto mb-4 invert" />
+            {/* Se eliminó el logo, solo se deja el texto */}
+            <span className="ml-0 font-semibold text-base text-dark">Olimpiadas Deportivas 2025</span>
             <p className="text-sm text-gray-300 mt-2">
               Portal institucional de las Olimpiadas Deportivas de Educacion Superior de Tucumán.
             </p>

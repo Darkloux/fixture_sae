@@ -30,6 +30,8 @@ export interface Match {
   resultado: MatchScore;
   estado: MatchStatus;
   fecha: string;
+  canchaNombre?: string; // Nombre de la cancha
+  canchaUbicacion?: string; // Ubicación de la cancha
 }
 
 export interface SportsContextType {

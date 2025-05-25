@@ -12,11 +12,11 @@ const Logo: React.FC<LogoProps> = ({ className = "" }) => {
   return (
     <div className={`flex items-center ${className}`}>
       <img 
-        src="https://i.ibb.co/3YspXSkV/apple-touch-icon.png" 
+        src="/images/favicon-32x32.png" 
         alt="Deportivo SAE Logo" 
         className="h-full w-auto rounded-lg"
       />
-      <span className="ml-2 font-bold text-xl text-dark">Olimpiadas Deportivas</span>
+      <span className="ml-2 font-semibold text-base text-dark">Olimpiadas Deportivas 2025</span>
     </div>
   );
 };

@@ -36,7 +36,9 @@ const FixtureAdminPage: React.FC = () => {
     equipoVisitante: {} as Team,
     resultado: { local: 0, visitante: 0 },
     estado: 'programado',
-    fecha: new Date().toISOString().slice(0, 16)
+    fecha: new Date().toISOString().slice(0, 16),
+    canchaNombre: '',
+    canchaUbicacion: ''
   });
 
   const [activeTab, setActiveTab] = useState<'teams' | 'matches' | 'standings'>('teams');
@@ -114,7 +116,9 @@ const FixtureAdminPage: React.FC = () => {
       equipoVisitante: {} as Team,
       resultado: { local: 0, visitante: 0 },
       estado: 'programado',
-      fecha: new Date().toISOString().slice(0, 16)
+      fecha: new Date().toISOString().slice(0, 16),
+      canchaNombre: '',
+      canchaUbicacion: ''
     });
     setEditingMatchId(null);
     setIsEditingMatch(false);
@@ -156,7 +160,9 @@ const FixtureAdminPage: React.FC = () => {
       equipoVisitante: match.equipoVisitante,
       resultado: match.resultado,
       estado: match.estado,
-      fecha: match.fecha
+      fecha: match.fecha,
+      canchaNombre: match.canchaNombre || '',
+      canchaUbicacion: match.canchaUbicacion || ''
     });
     setEditingMatchId(match.id);
     setIsEditingMatch(true);
@@ -490,6 +496,32 @@ const FixtureAdminPage: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre del partido
+                  </label>
+                  <input
+                    type="text"
+                    value={matchFormData.canchaNombre || ''}
+                    onChange={e => setMatchFormData({ ...matchFormData, canchaNombre: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre de la cancha
+                  </label>
+                  <input
+                    type="text"
+                    value={matchFormData.canchaUbicacion || ''}
+                    onChange={e => setMatchFormData({ ...matchFormData, canchaUbicacion: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
 
               <div className="flex justify-end gap-2">
                 <button

@@ -25,7 +25,7 @@ export interface DBMatch {
   icon_equipo_visitante: string;
 }
 
-const API_URL = 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export async function getMatches(): Promise<DBMatch[]> {
   const res = await fetch(`${API_URL}/matches`);

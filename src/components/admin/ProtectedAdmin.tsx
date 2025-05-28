@@ -16,4 +16,4 @@ const ProtectedAdmin: React.FC<ProtectedAdminProps> = ({ children }) => {
   return <>{children}</>;
 };
 
-export default ProtectedAdmin
+export default ProtectedAdmin;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAdmin } from '../../contexts/AdminContext';
 
 /**
  * Footer component with institutional information
@@ -14,6 +15,8 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo and Info */}
           <div className="flex flex-col">
+            {/* Se eliminó el logo, solo se deja el texto */}
+            <span className="ml-0 font-semibold text-base text-dark">Olimpiadas Deportivas 2025</span>
             <p className="text-sm text-gray-300 mt-2">
               Portal institucional de las Olimpiadas Deportivas de Educacion Superior de Tucumán.
             </p>
@@ -32,8 +35,8 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contacto</h3>
             <address className="not-italic text-sm text-gray-300 space-y-2">
-              <p>+54 9 3816 54-7205 (IPEF)</p>
-              <p>+54 9 3813 35-1260 (UTN)</p>
+              <p>Numero: +54 9 381 654-7205 (IPEF)</p>
+              <p>Numero: +54 9 381 335-1260 (UTN)</p>
             </address>
           </div>
         </div>

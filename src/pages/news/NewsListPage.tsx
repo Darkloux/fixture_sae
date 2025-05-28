@@ -14,32 +14,15 @@ const NewsListPage: React.FC = () => {
     <div className="pt-24 pb-16">
       <div className="container-custom">
         <div className="max-w-4xl mx-auto">
-          {/* Sección para las ubicaciones de las canchas */}
+          {/* Apartado de Ubicaciones */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Ubicaciones de las Canchas</h2>
-            <p className="text-gray-600">Descubre dónde se jugarán los diferentes deportes durante las Olimpiadas.</p>
-            <ul className="list-disc list-inside text-gray-800">
+            <h2 className="text-2xl font-bold mb-4">Ubicaciones</h2>
+            <ul className="space-y-2">
               <li>
-                <a 
-                  href="https://maps.app.goo.gl/fV1eQNDyTb1FkefL9?g_st=aw" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-primary hover:underline"
-                >
-                  Básquet - Ver ubicación
-                </a>
-                <span className="text-black"> (Complejo Avellaneda)</span>
+                Basquet - <a href="https://maps.app.goo.gl/fV1eQNDyTb1FkefL9?g_st=aw" target="_blank" rel="noopener noreferrer" className="text-orange-500 font-semibold hover:underline">Ir alli (Complejo Avellaneda)</a>
               </li>
               <li>
-                <a 
-                  href="https://maps.app.goo.gl/HibHH4gtBAbGYsbE8" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-primary hover:underline"
-                >
-                  Vóley - Ver ubicación
-                </a>
-                <span className="text-black"> (Complejo Dickens)</span>
+                Voley - <a href="https://maps.app.goo.gl/psWbpmy15u6ZPgBVA" target="_blank" rel="noopener noreferrer" className="text-orange-500 font-semibold hover:underline">Ir alli (Complejo Dickens)</a>
               </li>
             </ul>
           </div>
@@ -85,13 +68,13 @@ const NewsListPage: React.FC = () => {
               </Link>
             ))}
           </div>
-        </div>
 
-        {news.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600">No hay noticias disponibles en este momento.</p>
-          </div>
-        )}
+          {news.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-600">No hay noticias disponibles en este momento.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

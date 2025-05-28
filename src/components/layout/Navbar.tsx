@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
           <img 
             src="/images/logos_horizontal.png" 
             alt="Logo institucional extra" 
-            className="hidden md:block h-14 w-auto mx-8" 
+            className="hidden md:block h-16 w-auto mx-8" 
             style={{flexShrink: 0}} 
           />
 
@@ -57,7 +57,10 @@ const Navbar: React.FC = () => {
             <NavLink to="/" className={({isActive}) => `nav-link ${isActive ? 'active text-primary' : 'text-dark hover:text-primary'}`} end>
               Noticias
             </NavLink>
-            <NavLink to="/estadisticas" className={({isActive}) => `nav-link ${isActive ? 'active text-primary' : 'text-dark hover:text-primary'}`}>
+            <NavLink to="/horarios" className={({isActive}) => `nav-link ${isActive ? 'active text-primary' : 'text-dark hover:text-primary'}`}> 
+              Horarios
+            </NavLink>
+            <NavLink to="/estadisticas" className={({isActive}) => `nav-link ${isActive ? 'active text-primary' : 'text-dark hover:text-primary'}`}> 
               Estadísticas
             </NavLink>
           </nav>
@@ -97,6 +100,15 @@ const Navbar: React.FC = () => {
             end
           >
             Noticias
+          </NavLink>
+          <NavLink 
+            to="/horarios" 
+            className={({isActive}) => `w-full py-5 px-8 text-lg font-medium ${
+              isActive ? 'text-primary bg-primary/10 font-bold' : 'text-gray-800 hover:bg-gray-100'
+            }`}
+            onClick={closeMenu}
+          >
+            Horarios
           </NavLink>
           <NavLink 
             to="/estadisticas" 

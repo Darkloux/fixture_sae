@@ -110,6 +110,18 @@ const StatsPage: React.FC = () => {
                   </span>
                 </div>
 
+                {/* Mostrar nombre y ubicación de la cancha si existen */}
+                {(match.canchaNombre || match.canchaUbicacion) && (
+                  <div className="mb-2 text-sm text-gray-700 flex flex-col md:flex-row md:items-center md:gap-2">
+                    {match.canchaNombre && (
+                      <span><b>Nombre:</b> {match.canchaNombre}</span>
+                    )}
+                    {match.canchaUbicacion && (
+                      <span><b>Cancha:</b> {match.canchaUbicacion}</span>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
                     {match.equipoLocal.logo && (

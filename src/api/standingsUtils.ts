@@ -11,49 +11,50 @@ export function calcularStandings(matches: Match[], teams: Team[], sport: SportT
   });
   // Procesar partidos finalizados
   matches.filter(m => m.deporte === sport && m.estado === 'finalizado').forEach(match => {
-    const local = statsByTeam[match.equipoLocal.id];
-    const visitante = statsByTeam[match.equipoVisitante.id];
+    const local = statsByTeam[match.equipoLocalId];
+    const visitante = statsByTeam[match.equipoVisitanteId];
     if (!local || !visitante) return;
     // Fútbol
     if (sport.startsWith('futbol')) {
-      local.GF += match.resultado.local;
-      local.GC += match.resultado.visitante;
-      visitante.GF += match.resultado.visitante;
-      visitante.GC += match.resultado.local;
-      if (match.resultado.local > match.resultado.visitante) {
+      local.GF += match.golesLocal;
+      local.GC += match.golesVisitante;
+      visitante.GF += match.golesVisitante;
+      visitante.GC += match.golesLocal;
+      if (match.golesLocal > match.golesVisitante) {
         local.PG += 1; visitante.PP += 1;
-      } else if (match.resultado.local < match.resultado.visitante) {
+      } else if (match.golesLocal < match.golesVisitante) {
         visitante.PG += 1; local.PP += 1;
       } else {
         local.PE += 1; visitante.PE += 1;
       }
     } else if (sport.startsWith('basquet')) {
-      local.PF += match.resultado.local;
-      local.PC += match.resultado.visitante;
-      visitante.PF += match.resultado.visitante;
-      visitante.PC += match.resultado.local;
-      if (match.resultado.local > match.resultado.visitante) {
+      local.PF += match.golesLocal;
+      local.PC += match.golesVisitante;
+      visitante.PF += match.golesVisitante;
+      visitante.PC += match.golesLocal;
+      if (match.golesLocal > match.golesVisitante) {
         local.PG += 1; visitante.PP += 1;
       } else {
         visitante.PG += 1; local.PP += 1;
       }
     } else if (sport.startsWith('voley')) {
-      local.SG += match.resultado.local;
-      local.SC += match.resultado.visitante;
-      visitante.SG += match.resultado.visitante;
-      visitante.SC += match.resultado.local;
-      if (match.resultado.local > match.resultado.visitante) {
+      // Si tienes campos específicos para voley, cámbialos aquí
+      local.SG += match.golesLocal;
+      local.SC += match.golesVisitante;
+      visitante.SG += match.golesVisitante;
+      visitante.SC += match.golesLocal;
+      if (match.golesLocal > match.golesVisitante) {
         local.PG += 1; visitante.PP += 1;
-        if (match.resultado.local === 3 && match.resultado.visitante <= 1) {
+        if (match.golesLocal === 3 && match.golesVisitante <= 1) {
           local.PTS += 3; visitante.PTS += 0;
-        } else if (match.resultado.local === 3 && match.resultado.visitante === 2) {
+        } else if (match.golesLocal === 3 && match.golesVisitante === 2) {
           local.PTS += 2; visitante.PTS += 1;
         }
       } else {
         visitante.PG += 1; local.PP += 1;
-        if (match.resultado.visitante === 3 && match.resultado.local <= 1) {
+        if (match.golesVisitante === 3 && match.golesLocal <= 1) {
           visitante.PTS += 3; local.PTS += 0;
-        } else if (match.resultado.visitante === 3 && match.resultado.local === 2) {
+        } else if (match.golesVisitante === 3 && match.golesLocal === 2) {
           visitante.PTS += 2; local.PTS += 1;
         }
       }

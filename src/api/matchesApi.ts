@@ -1,3 +1,5 @@
+import { supabase } from './supabaseClient';
+
 export interface DBMatch {
   id_partido: string;
   deporte: string;
@@ -25,34 +27,26 @@ export interface DBMatch {
   icon_equipo_visitante: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 export async function getMatches(): Promise<DBMatch[]> {
-  const res = await fetch(`${API_URL}/matches`);
-  return await res.json();
+  const { data, error } = await supabase
+    .from('matches')
+    .select('*');
+  if (error) throw new Error('Error al obtener partidos: ' + error.message);
+  return data as DBMatch[];
 }
 
 export async function saveMatch(match: DBMatch): Promise<void> {
-  console.log('🔄 Enviando partido a API:', match);
-  
-  const response = await fetch(`${API_URL}/matches`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(match),
-  });
-  
-  console.log('📡 Respuesta de API:', response.status, response.statusText);
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('❌ Error en respuesta de API:', errorText);
-    throw new Error(`Failed to save match: ${response.status} ${errorText}`);
-  }
-  
-  const result = await response.json();
-  console.log('✅ Resultado de API:', result);
+  // upsert: inserta o actualiza según id_partido
+  const { error } = await supabase
+    .from('matches')
+    .upsert([match], { onConflict: 'id_partido' });
+  if (error) throw new Error('Error al guardar partido: ' + error.message);
 }
 
 export async function deleteMatch(id_partido: string): Promise<void> {
-  await fetch(`${API_URL}/matches/${id_partido}`, { method: 'DELETE' });
+  const { error } = await supabase
+    .from('matches')
+    .delete()
+    .eq('id_partido', id_partido);
+  if (error) throw new Error('Error al borrar partido: ' + error.message);
 }

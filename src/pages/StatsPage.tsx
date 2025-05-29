@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSports } from '../contexts/SportsContext';
 import { useStandings } from '../contexts/StandingsContext';
-import { SportType, Match } from '../types/sports';
+import { SportType, Match, Team } from '../types/sports';
 import { Calendar } from 'lucide-react';
 import DynamicStandingsTable from '../components/standings/DynamicStandingsTable';
 
 const StatsPage: React.FC = () => {
-  const { matches } = useSports();
+  const { matches, teams } = useSports();
   const { customStandings } = useStandings();
   const [selectedSport, setSelectedSport] = useState<SportType>('futbol_11_masculino');
   const [searchDate, setSearchDate] = useState('');
@@ -85,72 +85,78 @@ const StatsPage: React.FC = () => {
 
           {/* Matches Grid */}
           <div className="grid gap-4">
-            {filteredMatches.map(match => (
-              <div
-                key={match.id}
-                className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500">
-                    {new Date(match.fecha).toLocaleDateString('es-ES', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-white text-sm ${getStatusColor(
-                      match.estado
-                    )}`}
-                  >
-                    {getStatusText(match.estado)}
-                  </span>
+            {filteredMatches.map(match => {
+              // Obtener equipos por ID
+              const equipoLocal = typeof match.equipoLocalId === 'string' && Array.isArray(teams)
+                ? teams.find(t => t.id === match.equipoLocalId)
+                : undefined;
+              const equipoVisitante = typeof match.equipoVisitanteId === 'string' && Array.isArray(teams)
+                ? teams.find(t => t.id === match.equipoVisitanteId)
+                : undefined;
+              return (
+                <div
+                  key={match.id}
+                  className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-500">
+                      {new Date(match.fecha).toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-white text-sm ${getStatusColor(
+                        match.estado
+                      )}`}
+                    >
+                      {getStatusText(match.estado)}
+                    </span>
+                  </div>
+
+                  {/* Mostrar nombre y ubicación de la cancha si existen */}
+                  {(match.name_cancha) && (
+                    <div className="mb-2 text-sm text-gray-700 flex flex-col md:flex-row md:items-center md:gap-2">
+                      {match.name_cancha && (
+                        <span><b>Cancha:</b> {match.name_cancha}</span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1">
+                      {equipoLocal?.logo && (
+                        <img
+                          src={equipoLocal.logo}
+                          alt={equipoLocal.nombre}
+                          className="w-12 h-12 object-contain"
+                        />
+                      )}
+                      <span className="font-medium">{equipoLocal?.nombre || 'Equipo local'}</span>
+                    </div>
+
+                    <div className="px-6 py-2 bg-white rounded-lg shadow-sm font-bold text-xl">
+                      {match.golesLocal} - {match.golesVisitante}
+                    </div>
+
+                    <div className="flex items-center gap-4 flex-1 justify-end">
+                      <span className="font-medium">{equipoVisitante?.nombre || 'Equipo visitante'}</span>
+                      {equipoVisitante?.logo && (
+                        <img
+                          src={equipoVisitante.logo}
+                          alt={equipoVisitante.nombre}
+                          className="w-12 h-12 object-contain"
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
-
-                {/* Mostrar nombre y ubicación de la cancha si existen */}
-                {(match.canchaNombre || match.canchaUbicacion) && (
-                  <div className="mb-2 text-sm text-gray-700 flex flex-col md:flex-row md:items-center md:gap-2">
-                    {match.canchaNombre && (
-                      <span><b>Nombre:</b> {match.canchaNombre}</span>
-                    )}
-                    {match.canchaUbicacion && (
-                      <span><b>Cancha:</b> {match.canchaUbicacion}</span>
-                    )}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    {match.equipoLocal.logo && (
-                      <img
-                        src={match.equipoLocal.logo}
-                        alt={match.equipoLocal.nombre}
-                        className="w-12 h-12 object-contain"
-                      />
-                    )}
-                    <span className="font-medium">{match.equipoLocal.nombre}</span>
-                  </div>
-
-                  <div className="px-6 py-2 bg-white rounded-lg shadow-sm font-bold text-xl">
-                    {match.resultado.local} - {match.resultado.visitante}
-                  </div>
-
-                  <div className="flex items-center gap-4 flex-1 justify-end">
-                    <span className="font-medium">{match.equipoVisitante.nombre}</span>
-                    {match.equipoVisitante.logo && (
-                      <img
-                        src={match.equipoVisitante.logo}
-                        alt={match.equipoVisitante.nombre}
-                        className="w-12 h-12 object-contain"
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
             {filteredMatches.length === 0 && (
               <div className="text-center py-8 text-gray-500">
@@ -176,7 +182,9 @@ const StatsPage: React.FC = () => {
           <h2 className="text-lg font-semibold mb-4">Tabla de posiciones</h2>
           <DynamicStandingsTable
             matches={filteredMatches}
-            teams={Array.from(new Set(filteredMatches.flatMap(m => [m.equipoLocal, m.equipoVisitante])))}
+            teams={Array.from(new Set(filteredMatches.flatMap(m => [m.equipoLocalId, m.equipoVisitanteId])))
+              .map(id => (typeof teams !== 'undefined' ? teams.find(t => t.id === id) : undefined))
+              .filter(Boolean) as Team[]}
             sport={selectedSport}
             customData={customStandings[selectedSport]}
           />

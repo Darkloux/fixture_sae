@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getMatches, saveMatch, deleteMatch, DBMatch } from '../api/matchesApi';
-import { Match, MatchScore, SportType, SportsContextType, Team } from '../types/sports';
+import { saveMatch, deleteMatch, DBMatch } from '../api/matchesApi';
+import { getTeams, addTeam as addTeamApi, updateTeam as updateTeamApi, deleteTeam as deleteTeamApi } from '../api/teamsApi';
+import { Match, SportType, SportsContextType, Team } from '../types/sports';
 
 const SportsContext = createContext<SportsContextType | null>(null);
 
@@ -12,62 +13,28 @@ export const useSports = () => {
   return context;
 };
 
-// Conversión DBMatch <-> Match
-function dbMatchToMatch(db: DBMatch, teams: Team[]): Match {
-  // El backend ahora devuelve objetos equipoLocal y equipoVisitante anidados
-  const equipoLocal = teams.find(t => t.id === db.equipoLocal?.id) || { 
-    id: db.equipoLocal?.id || '', 
-    nombre: db.equipoLocal?.nombre || '', 
-    logo: db.equipoLocal?.logo || '', 
-    createdAt: '', 
-    updatedAt: '' 
-  };
-  const equipoVisitante = teams.find(t => t.id === db.equipoVisitante?.id) || { 
-    id: db.equipoVisitante?.id || '', 
-    nombre: db.equipoVisitante?.nombre || '', 
-    logo: db.equipoVisitante?.logo || '', 
-    createdAt: '', 
-    updatedAt: '' 
-  };
+function matchToDBMatch(match: Match, teams: Team[]): DBMatch {
+  const { id, deporte, equipoLocalId, equipoVisitanteId, golesLocal, golesVisitante, estado, name_partido, name_cancha, fecha } = match;
+  const equipoLocal = teams.find((t: Team) => t.id === equipoLocalId);
+  const equipoVisitante = teams.find((t: Team) => t.id === equipoVisitanteId);
+  const [fechaStr, hora] = fecha.includes('T') ? fecha.split('T') : [fecha, ''];
   return {
-    id: db.id_partido,
-    deporte: db.deporte as SportType,
-    equipoLocal,
-    equipoVisitante,
-    resultado: { local: db.goles_equipo_1, visitante: db.goles_equipo_2 },
-    estado: db.estado as any,
-    fecha: db.fecha + (db.hora ? 'T' + db.hora : ''),
-    canchaNombre: db.name_partido,
-    canchaUbicacion: db.name_cancha,
-  };
-}
-
-function matchToDBMatch(match: Match): DBMatch {
-  return {
-    id_partido: match.id,
-    deporte: match.deporte,
-    equipoLocal: {
-      id: match.equipoLocal.id,
-      nombre: match.equipoLocal.nombre,
-      logo: match.equipoLocal.logo || ''
-    },
-    equipoVisitante: {
-      id: match.equipoVisitante.id,
-      nombre: match.equipoVisitante.nombre,
-      logo: match.equipoVisitante.logo || ''
-    },
-    goles_equipo_1: match.resultado.local,
-    goles_equipo_2: match.resultado.visitante,
-    estado: match.estado,
-    name_partido: match.canchaNombre || '',
-    name_cancha: match.canchaUbicacion || '',
-    fecha: match.fecha.split('T')[0],
-    hora: match.fecha.includes('T') ? match.fecha.split('T')[1] : '',
-    id_equipo_local: match.equipoLocal.id,
-    id_equipo_visitante: match.equipoVisitante.id,
-    icon_equipo_local: match.equipoLocal.logo || '',
-    icon_equipo_visitante: match.equipoVisitante.logo || '',
-    type_sport: (match as any).type_sport || match.deporte,
+    id_partido: id,
+    deporte,
+    type_sport: deporte,
+    equipoLocal: { id: '', nombre: '', logo: '' }, // legacy, no usar
+    equipoVisitante: { id: '', nombre: '', logo: '' }, // legacy, no usar
+    goles_equipo_1: golesLocal,
+    goles_equipo_2: golesVisitante,
+    estado,
+    name_partido: name_partido || '',
+    name_cancha: name_cancha || '',
+    fecha: fechaStr,
+    hora,
+    id_equipo_local: equipoLocalId,
+    id_equipo_visitante: equipoVisitanteId,
+    icon_equipo_local: equipoLocal?.logo || '',
+    icon_equipo_visitante: equipoVisitante?.logo || '',
   };
 }
 
@@ -76,13 +43,49 @@ export const SportsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [teams, setTeams] = useState<Team[]>([]);
 
   useEffect(() => {
-    getMatches().then((dbMatches) => {
-      const storedTeams = localStorage.getItem('teams');
-      const teamsArr: Team[] = storedTeams ? JSON.parse(storedTeams) : [];
-      setTeams(teamsArr);
-      setMatches(dbMatches.map((db: DBMatch) => dbMatchToMatch(db, teamsArr)));
-    });
+    getTeams()
+      .then(setTeams)
+      .catch((err) => {
+        // Mostrar error en consola y setear equipos vacío
+        console.error('Error al cargar equipos:', err);
+        setTeams([]);
+      });
   }, []);
+
+  // Join en memoria al cargar partidos desde Supabase
+  const fetchMatches = async () => {
+    try {
+      const { getMatches } = await import('../api/matchesApi');
+      const dbMatches = await getMatches();
+      const joinedMatches: Match[] = dbMatches.map((dbMatch) => {
+        const equipoLocal = teams.find(t => t.id === dbMatch.id_equipo_local);
+        const equipoVisitante = teams.find(t => t.id === dbMatch.id_equipo_visitante);
+        return {
+          id: dbMatch.id_partido,
+          deporte: dbMatch.deporte as SportType,
+          equipoLocalId: dbMatch.id_equipo_local,
+          equipoVisitanteId: dbMatch.id_equipo_visitante,
+          golesLocal: dbMatch.goles_equipo_1,
+          golesVisitante: dbMatch.goles_equipo_2,
+          estado: dbMatch.estado as Match['estado'],
+          fecha: dbMatch.fecha + (dbMatch.hora ? 'T' + dbMatch.hora : ''),
+          name_partido: dbMatch.name_partido,
+          name_cancha: dbMatch.name_cancha,
+          equipoLocal: equipoLocal,
+          equipoVisitante: equipoVisitante,
+        };
+      });
+      setMatches(joinedMatches);
+    } catch (err) {
+      // Mostrar error en consola y setear partidos vacío
+      console.error('Error al cargar partidos:', err);
+      setMatches([]);
+    }
+  };
+
+  useEffect(() => {
+    if (teams.length > 0) fetchMatches();
+  }, [teams]);
 
   const addMatch = async (matchData: Omit<Match, 'id'>) => {
     try {
@@ -90,16 +93,13 @@ export const SportsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...matchData,
         id: `match-${Date.now()}`,
       };
-      console.log('🔄 Guardando partido:', newMatch);
-      console.log('🔄 Datos para DB:', matchToDBMatch(newMatch));
-      
-      await saveMatch(matchToDBMatch(newMatch));
-      console.log('✅ Partido guardado en DB');
-      
-      setMatches(prev => [...prev, newMatch]);
-      console.log('✅ Partido agregado al estado');
+      await saveMatch(matchToDBMatch(newMatch, teams));
+      setMatches(prev => [...prev, {
+        ...newMatch,
+        equipoLocal: teams.find(t => t.id === newMatch.equipoLocalId),
+        equipoVisitante: teams.find(t => t.id === newMatch.equipoVisitanteId),
+      }]);
     } catch (error) {
-      console.error('❌ Error al guardar partido:', error);
       throw error;
     }
   };
@@ -112,8 +112,12 @@ export const SportsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ...matchData,
       id,
     };
-    await saveMatch(matchToDBMatch(match));
-    setMatches(prev => prev.map(m => m.id === id ? match : m));
+    await saveMatch(matchToDBMatch(match, teams));
+    setMatches(prev => prev.map(m => m.id === id ? {
+      ...match,
+      equipoLocal: teams.find(t => t.id === match.equipoLocalId),
+      equipoVisitante: teams.find(t => t.id === match.equipoVisitanteId),
+    } : m));
   };
 
   const deleteMatchFn = async (id: string) => {
@@ -121,34 +125,19 @@ export const SportsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setMatches(prev => prev.filter(m => m.id !== id));
   };
 
-  const saveTeamsToLocalStorage = (updatedTeams: Team[]) => {
-    localStorage.setItem('teams', JSON.stringify(updatedTeams));
-    setTeams(updatedTeams);
+  const addTeam = async (teamData: Omit<Team, 'id' | 'createdAt' | 'updatedAt'>) => {
+    await addTeamApi(teamData);
+    setTeams(await getTeams());
   };
 
-  const addTeam = (teamData: Omit<Team, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const now = new Date().toISOString();
-    const newTeam: Team = {
-      ...teamData,
-      id: `team-${Date.now()}`,
-      createdAt: now,
-      updatedAt: now,
-    };
-    saveTeamsToLocalStorage([...teams, newTeam]);
+  const updateTeam = async (id: string, teamData: Partial<Team>) => {
+    await updateTeamApi(id, teamData);
+    setTeams(await getTeams());
   };
 
-  const updateTeam = (id: string, teamData: Partial<Team>) => {
-    const updatedTeams = teams.map((team) =>
-      team.id === id
-        ? { ...team, ...teamData, updatedAt: new Date().toISOString() }
-        : team
-    );
-    saveTeamsToLocalStorage(updatedTeams);
-  };
-
-  const deleteTeam = (id: string) => {
-    const filteredTeams = teams.filter((team) => team.id !== id);
-    saveTeamsToLocalStorage(filteredTeams);
+  const deleteTeam = async (id: string) => {
+    await deleteTeamApi(id);
+    setTeams(await getTeams());
   };
 
   const getTeamById = (id: string) => {

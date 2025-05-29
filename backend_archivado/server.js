@@ -55,6 +55,13 @@ let db;
     footer TEXT,
     img_portada TEXT
   )`);
+  await db.run(`CREATE TABLE IF NOT EXISTS teams (
+    id TEXT PRIMARY KEY,
+    nombre TEXT NOT NULL,
+    logo TEXT,
+    createdAt TEXT,
+    updatedAt TEXT
+  )`);
 })();
 
 // Servir frontend (build) si existe la carpeta dist
@@ -279,6 +286,62 @@ app.delete('/news/:id', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: 'Error al borrar noticia', details: err.message });
+  }
+});
+
+// CRUD equipos
+app.get('/teams', async (req, res) => {
+  const rows = await db.all('SELECT * FROM teams');
+  res.json(rows);
+});
+
+app.get('/teams/:id', async (req, res) => {
+  const { id } = req.params;
+  const row = await db.get('SELECT * FROM teams WHERE id = ?', id);
+  if (row) {
+    res.json(row);
+  } else {
+    res.status(404).json({ ok: false, error: 'Equipo no encontrado' });
+  }
+});
+
+app.post('/teams', async (req, res) => {
+  const { id, nombre, logo, createdAt, updatedAt } = req.body;
+  if (!id || !nombre) {
+    return res.status(400).json({ ok: false, error: 'Faltan campos requeridos' });
+  }
+  try {
+    await db.run(
+      `INSERT OR REPLACE INTO teams (id, nombre, logo, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`,
+      id, nombre, logo, createdAt, updatedAt
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: 'Error al guardar equipo', details: err.message });
+  }
+});
+
+app.put('/teams/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nombre, logo, updatedAt } = req.body;
+  try {
+    await db.run(
+      `UPDATE teams SET nombre = ?, logo = ?, updatedAt = ? WHERE id = ?`,
+      nombre, logo, updatedAt, id
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: 'Error al actualizar equipo', details: err.message });
+  }
+});
+
+app.delete('/teams/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.run('DELETE FROM teams WHERE id = ?', id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: 'Error al borrar equipo', details: err.message });
   }
 });
 

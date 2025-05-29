@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { News, NewsContextType } from '../types/news';
+import { getNews, addNews as addNewsApi, updateNews as updateNewsApi, deleteNews as deleteNewsApi } from '../api/newsApi';
 
 const NewsContext = createContext<NewsContextType | null>(null);
 
@@ -40,38 +41,22 @@ export const NewsProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    const storedNews = localStorage.getItem('noticias');
-    if (storedNews) {
-      setNews(JSON.parse(storedNews));
-    }
+    getNews().then(setNews);
   }, []);
 
-  const saveToLocalStorage = (updatedNews: News[]) => {
-    localStorage.setItem('noticias', JSON.stringify(updatedNews));
-    setNews(updatedNews);
+  const addNews = async (newsData: Omit<News, 'id' | 'fecha'>) => {
+    await addNewsApi(newsData);
+    setNews(await getNews());
   };
 
-  const addNews = (newsData: Omit<News, 'id' | 'fecha'>) => {
-    const newNews: News = {
-      ...newsData,
-      id: `news-${Date.now()}`,
-      fecha: new Date().toISOString(),
-    };
-    saveToLocalStorage([newNews, ...news]);
+  const updateNews = async (id: string, newsData: Omit<News, 'id' | 'fecha'>) => {
+    await updateNewsApi(id, newsData);
+    setNews(await getNews());
   };
 
-  const updateNews = (id: string, newsData: Omit<News, 'id' | 'fecha'>) => {
-    const updatedNews = news.map((item) =>
-      item.id === id
-        ? { ...item, ...newsData }
-        : item
-    );
-    saveToLocalStorage(updatedNews);
-  };
-
-  const deleteNews = (id: string) => {
-    const filteredNews = news.filter((item) => item.id !== id);
-    saveToLocalStorage(filteredNews);
+  const deleteNews = async (id: string) => {
+    await deleteNewsApi(id);
+    setNews(await getNews());
   };
 
   const getNewsById = (id: string) => {

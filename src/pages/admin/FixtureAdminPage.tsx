@@ -19,6 +19,11 @@ const FixtureAdminPage: React.FC = () => {
     deleteTeam
   } = useSports();
 
+  // --- PROTECCIÓN: SIEMPRE ARRAYS ---
+  const safeTeams = Array.isArray(teams) ? teams : [];
+  const safeMatches = Array.isArray(matches) ? matches : [];
+  // -----------------------------------
+
   const { setCustomStandings, customStandings } = useStandings();
 
   const [isEditingTeam, setIsEditingTeam] = useState(false);
@@ -32,17 +37,19 @@ const FixtureAdminPage: React.FC = () => {
   const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
   const [matchFormData, setMatchFormData] = useState<Omit<Match, 'id'>>({
     deporte: 'futbol_11_masculino',
-    equipoLocal: {} as Team,
-    equipoVisitante: {} as Team,
-    resultado: { local: 0, visitante: 0 },
+    equipoLocalId: '',
+    equipoVisitanteId: '',
+    golesLocal: 0,
+    golesVisitante: 0,
     estado: 'programado',
     fecha: new Date().toISOString().slice(0, 16),
-    canchaNombre: '',
-    canchaUbicacion: ''
+    name_partido: '',
+    name_cancha: ''
   });
 
   const [activeTab, setActiveTab] = useState<'teams' | 'matches' | 'standings'>('teams');
   const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState(true);
 
   const deportes: { id: SportType; nombre: string }[] = [
     { id: 'futbol_11_masculino', nombre: 'Fútbol 11 masculino' },
@@ -79,14 +86,19 @@ const FixtureAdminPage: React.FC = () => {
     setError('');
   };
 
-  const handleTeamSubmit = (e: React.FormEvent) => {
+  const handleTeamSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingTeamId) {
-      updateTeam(editingTeamId, teamFormData);
-    } else {
-      addTeam(teamFormData);
+    setError('');
+    try {
+      if (editingTeamId) {
+        await updateTeam(editingTeamId, teamFormData);
+      } else {
+        await addTeam(teamFormData);
+      }
+      resetTeamForm();
+    } catch (err: any) {
+      setError(err?.message || 'Error al guardar equipo');
     }
-    resetTeamForm();
   };
 
   const handleTeamEdit = (team: Team) => {
@@ -99,8 +111,9 @@ const FixtureAdminPage: React.FC = () => {
   };
 
   const handleTeamDelete = (id: string) => {
+    // Buscar si el equipo está en uso por ID, no por objeto
     const teamInUse = matches.some(
-      match => match.equipoLocal.id === id || match.equipoVisitante.id === id
+      match => match.equipoLocalId === id || match.equipoVisitanteId === id
     );
     if (teamInUse) {
       setError('No se puede eliminar un equipo que está siendo usado en partidos');
@@ -112,57 +125,60 @@ const FixtureAdminPage: React.FC = () => {
   const resetMatchForm = () => {
     setMatchFormData({
       deporte: 'futbol_11_masculino',
-      equipoLocal: {} as Team,
-      equipoVisitante: {} as Team,
-      resultado: { local: 0, visitante: 0 },
+      equipoLocalId: '',
+      equipoVisitanteId: '',
+      golesLocal: 0,
+      golesVisitante: 0,
       estado: 'programado',
       fecha: new Date().toISOString().slice(0, 16),
-      canchaNombre: '',
-      canchaUbicacion: ''
+      name_partido: '',
+      name_cancha: ''
     });
     setEditingMatchId(null);
     setIsEditingMatch(false);
     setError('');
   };
 
-  const handleMatchSubmit = (e: React.FormEvent) => {
+  const handleMatchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!matchFormData.equipoLocal.id || !matchFormData.equipoVisitante.id) {
+    setError('');
+    if (!matchFormData.equipoLocalId || !matchFormData.equipoVisitanteId) {
       setError('Debe seleccionar ambos equipos');
       return;
     }
-
-    if (matchFormData.equipoLocal.id === matchFormData.equipoVisitante.id) {
+    if (matchFormData.equipoLocalId === matchFormData.equipoVisitanteId) {
       setError('Los equipos deben ser diferentes');
       return;
     }
-
     const matchDate = new Date(matchFormData.fecha);
     const now = new Date();
-
-    if (matchDate < now && matchFormData.estado === 'programado') {
-      matchFormData.estado = 'finalizado';
+    let estado = matchFormData.estado;
+    if (matchDate < now && estado === 'programado') {
+      estado = 'finalizado';
     }
-
-    if (editingMatchId) {
-      updateMatch(editingMatchId, matchFormData);
-    } else {
-      addMatch(matchFormData);
+    try {
+      if (editingMatchId) {
+        await updateMatch(editingMatchId, { ...matchFormData, estado });
+      } else {
+        await addMatch({ ...matchFormData, estado });
+      }
+      resetMatchForm();
+    } catch (err: any) {
+      setError(err?.message || 'Error al guardar partido');
     }
-    resetMatchForm();
   };
 
   const handleMatchEdit = (match: Match) => {
     setMatchFormData({
       deporte: match.deporte,
-      equipoLocal: match.equipoLocal,
-      equipoVisitante: match.equipoVisitante,
-      resultado: match.resultado,
+      equipoLocalId: match.equipoLocalId,
+      equipoVisitanteId: match.equipoVisitanteId,
+      golesLocal: match.golesLocal,
+      golesVisitante: match.golesVisitante,
       estado: match.estado,
       fecha: match.fecha,
-      canchaNombre: match.canchaNombre || '',
-      canchaUbicacion: match.canchaUbicacion || ''
+      name_partido: match.name_partido || '',
+      name_cancha: match.name_cancha || ''
     });
     setEditingMatchId(match.id);
     setIsEditingMatch(true);
@@ -179,6 +195,21 @@ const FixtureAdminPage: React.FC = () => {
       setCustomStandings((prevAll: any) => ({ ...prevAll, [selectedSport]: standingsAuto }));
     }
   }, [matches, teams, selectedSport]);
+
+  useEffect(() => {
+    // Considera cargado cuando teams está listo (puedes agregar matches si lo deseas)
+    if (teams && Array.isArray(teams)) {
+      setLoading(false);
+    }
+  }, [teams]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <span className="text-lg text-gray-500">Cargando...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -283,7 +314,7 @@ const FixtureAdminPage: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {teams.map((team) => (
+            {safeTeams.map((team) => (
               <div key={team.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="p-4">
                   <div className="flex items-center gap-4">
@@ -391,18 +422,13 @@ const FixtureAdminPage: React.FC = () => {
                     Equipo Local
                   </label>
                   <select
-                    value={matchFormData.equipoLocal.id || ''}
-                    onChange={(e) => {
-                      const team = teams.find(t => t.id === e.target.value);
-                      if (team) {
-                        setMatchFormData({ ...matchFormData, equipoLocal: team });
-                      }
-                    }}
+                    value={matchFormData.equipoLocalId}
+                    onChange={(e) => setMatchFormData({ ...matchFormData, equipoLocalId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     required
                   >
                     <option value="">Seleccionar equipo</option>
-                    {teams.map(team => (
+                    {safeTeams.map(team => (
                       <option key={team.id} value={team.id}>
                         {team.nombre}
                       </option>
@@ -415,18 +441,13 @@ const FixtureAdminPage: React.FC = () => {
                     Equipo Visitante
                   </label>
                   <select
-                    value={matchFormData.equipoVisitante.id || ''}
-                    onChange={(e) => {
-                      const team = teams.find(t => t.id === e.target.value);
-                      if (team) {
-                        setMatchFormData({ ...matchFormData, equipoVisitante: team });
-                      }
-                    }}
+                    value={matchFormData.equipoVisitanteId}
+                    onChange={(e) => setMatchFormData({ ...matchFormData, equipoVisitanteId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     required
                   >
                     <option value="">Seleccionar equipo</option>
-                    {teams.map(team => (
+                    {safeTeams.map(team => (
                       <option key={team.id} value={team.id}>
                         {team.nombre}
                       </option>
@@ -458,18 +479,15 @@ const FixtureAdminPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Resultado Local
+                      Goles Local
                     </label>
                     <input
                       type="number"
                       min="0"
-                      value={matchFormData.resultado.local}
+                      value={matchFormData.golesLocal}
                       onChange={(e) => setMatchFormData({
                         ...matchFormData,
-                        resultado: {
-                          ...matchFormData.resultado,
-                          local: parseInt(e.target.value) || 0
-                        }
+                        golesLocal: parseInt(e.target.value) || 0
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       required
@@ -477,18 +495,15 @@ const FixtureAdminPage: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Resultado Visitante
+                      Goles Visitante
                     </label>
                     <input
                       type="number"
                       min="0"
-                      value={matchFormData.resultado.visitante}
+                      value={matchFormData.golesVisitante}
                       onChange={(e) => setMatchFormData({
                         ...matchFormData,
-                        resultado: {
-                          ...matchFormData.resultado,
-                          visitante: parseInt(e.target.value) || 0
-                        }
+                        golesVisitante: parseInt(e.target.value) || 0
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       required
@@ -504,8 +519,8 @@ const FixtureAdminPage: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    value={matchFormData.canchaNombre || ''}
-                    onChange={e => setMatchFormData({ ...matchFormData, canchaNombre: e.target.value })}
+                    value={matchFormData.name_partido}
+                    onChange={e => setMatchFormData({ ...matchFormData, name_partido: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     required
                   />
@@ -516,8 +531,8 @@ const FixtureAdminPage: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    value={matchFormData.canchaUbicacion || ''}
-                    onChange={e => setMatchFormData({ ...matchFormData, canchaUbicacion: e.target.value })}
+                    value={matchFormData.name_cancha}
+                    onChange={e => setMatchFormData({ ...matchFormData, name_cancha: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -540,7 +555,7 @@ const FixtureAdminPage: React.FC = () => {
           )}
 
           <div className="space-y-4">
-            {matches.map((match) => (
+            {safeMatches.map((match) => (
               <div
                 key={match.id}
                 className="bg-white rounded-lg shadow-sm p-4"
@@ -571,29 +586,41 @@ const FixtureAdminPage: React.FC = () => {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    {match.equipoLocal.logo && (
-                      <img
-                        src={match.equipoLocal.logo}
-                        alt={match.equipoLocal.nombre}
-                        className="w-12 h-12 object-contain"
-                      />
-                    )}
-                    <span className="font-medium">{match.equipoLocal.nombre}</span>
+                    {(() => {
+                      const team = teams.find(t => t.id === match.equipoLocalId);
+                      return team && team.logo ? (
+                        <img
+                          src={team.logo}
+                          alt={team.nombre}
+                          className="w-12 h-12 object-contain"
+                        />
+                      ) : null;
+                    })()}
+                    <span className="font-medium">{(() => {
+                      const team = teams.find(t => t.id === match.equipoLocalId);
+                      return team ? team.nombre : 'Equipo local';
+                    })()}</span>
                   </div>
 
                   <div className="px-6 py-2 bg-gray-50 rounded-lg font-bold text-xl">
-                    {match.resultado.local} - {match.resultado.visitante}
+                    {match.golesLocal} - {match.golesVisitante}
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <span className="font-medium">{match.equipoVisitante.nombre}</span>
-                    {match.equipoVisitante.logo && (
-                      <img
-                        src={match.equipoVisitante.logo}
-                        alt={match.equipoVisitante.nombre}
-                        className="w-12 h-12 object-contain"
-                      />
-                    )}
+                    <span className="font-medium">{(() => {
+                      const team = teams.find(t => t.id === match.equipoVisitanteId);
+                      return team ? team.nombre : 'Equipo visitante';
+                    })()}</span>
+                    {(() => {
+                      const team = teams.find(t => t.id === match.equipoVisitanteId);
+                      return team && team.logo ? (
+                        <img
+                          src={team.logo}
+                          alt={team.nombre}
+                          className="w-12 h-12 object-contain"
+                        />
+                      ) : null;
+                    })()}
                   </div>
                 </div>
 
@@ -635,8 +662,8 @@ const FixtureAdminPage: React.FC = () => {
             La edición manual de la tabla de posiciones está deshabilitada. Solo los partidos finalizados afectan la tabla.
           </div>
           <DynamicStandingsTable
-            matches={matches.filter(m => m.deporte === selectedSport)}
-            teams={teams.filter(t => t)}
+            matches={safeMatches.filter(m => m.deporte === selectedSport)}
+            teams={safeTeams.filter(t => t)}
             sport={selectedSport}
           />
         </div>

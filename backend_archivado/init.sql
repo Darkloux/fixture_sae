@@ -27,3 +27,12 @@ CREATE TABLE IF NOT EXISTS matches (
   fecha TEXT,
   hora TEXT
 );
+
+-- SQL para crear la tabla de equipos
+CREATE TABLE IF NOT EXISTS teams (
+  id TEXT PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  logo TEXT,
+  createdAt TEXT,
+  updatedAt TEXT
+);

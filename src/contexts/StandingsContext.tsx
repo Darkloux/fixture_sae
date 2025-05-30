@@ -43,6 +43,10 @@ export const StandingsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           puntos: row.PTS ?? row.Puntos ?? row.puntos ?? 0,
           goles_favor: row.GF ?? row.PF ?? row.SG ?? 0,
           goles_contra: row.GC ?? row.PC ?? row.SC ?? 0,
+          partidos_jugados: row.PJ ?? 0,
+          partidos_ganados: row.PG ?? 0,
+          partidos_perdidos: row.PP ?? 0,
+          partidos_empatados: row.PE ?? 0,
           otros: JSON.stringify(row)
         }));
         saveStandings(sport, mapped);

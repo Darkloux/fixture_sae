@@ -9,17 +9,21 @@ export function calcularStandings(matches: Match[], teams: Team[], sport: SportT
   teams.forEach(team => {
     statsByTeam[team.id] = { id: team.id, Equipo: team.nombre, ...getInitialStats(config.columns) };
   });
-  // Procesar partidos finalizados
-  matches.filter(m => m.deporte === sport && m.estado === 'finalizado').forEach(match => {
-    const local = statsByTeam[match.equipoLocalId];
-    const visitante = statsByTeam[match.equipoVisitanteId];
-    if (!local || !visitante) return;
-    // Fútbol
-    if (sport.startsWith('futbol')) {
+  // Procesar partidos finalizados SOLO para fútbol
+  if (sport.startsWith('futbol')) {
+    matches.filter(m => m.deporte === sport && m.estado === 'finalizado').forEach(match => {
+      const local = statsByTeam[match.equipoLocalId];
+      const visitante = statsByTeam[match.equipoVisitanteId];
+      if (!local || !visitante) return;
+      // Goles a favor y en contra
       local.GF += match.golesLocal;
       local.GC += match.golesVisitante;
       visitante.GF += match.golesVisitante;
       visitante.GC += match.golesLocal;
+      // Partidos jugados
+      local.PJ += 1;
+      visitante.PJ += 1;
+      // Ganados, perdidos, empatados
       if (match.golesLocal > match.golesVisitante) {
         local.PG += 1; visitante.PP += 1;
       } else if (match.golesLocal < match.golesVisitante) {
@@ -27,17 +31,32 @@ export function calcularStandings(matches: Match[], teams: Team[], sport: SportT
       } else {
         local.PE += 1; visitante.PE += 1;
       }
-    } else if (sport.startsWith('basquet')) {
+    });
+  } else if (sport.startsWith('basquet')) {
+    matches.filter(m => m.deporte === sport && m.estado === 'finalizado').forEach(match => {
+      const local = statsByTeam[match.equipoLocalId];
+      const visitante = statsByTeam[match.equipoVisitanteId];
+      if (!local || !visitante) return;
+      // Goles a favor y en contra
       local.PF += match.golesLocal;
       local.PC += match.golesVisitante;
       visitante.PF += match.golesVisitante;
       visitante.PC += match.golesLocal;
+      // Partidos jugados
+      local.PJ += 1;
+      visitante.PJ += 1;
+      // Ganados, perdidos
       if (match.golesLocal > match.golesVisitante) {
         local.PG += 1; visitante.PP += 1;
       } else {
         visitante.PG += 1; local.PP += 1;
       }
-    } else if (sport.startsWith('voley')) {
+    });
+  } else if (sport.startsWith('voley')) {
+    matches.filter(m => m.deporte === sport && m.estado === 'finalizado').forEach(match => {
+      const local = statsByTeam[match.equipoLocalId];
+      const visitante = statsByTeam[match.equipoVisitanteId];
+      if (!local || !visitante) return;
       // Si tienes campos específicos para voley, cámbialos aquí
       local.SG += match.golesLocal;
       local.SC += match.golesVisitante;
@@ -58,11 +77,10 @@ export function calcularStandings(matches: Match[], teams: Team[], sport: SportT
           visitante.PTS += 2; local.PTS += 1;
         }
       }
-    }
-  });
-  // Calcular PJ, DIF, PTS según reglas
+    });
+  }
+  // Calcular DIF, PTS según reglas
   Object.values(statsByTeam).forEach((stats: any) => {
-    stats.PJ = config.rules.PJ(stats);
     stats.DIF = config.rules.DIF(stats);
     if (!sport.startsWith('voley')) {
       stats.PTS = config.rules.PTS(stats);

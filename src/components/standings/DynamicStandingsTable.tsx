@@ -137,14 +137,14 @@ const DynamicStandingsTable: React.FC<DynamicStandingsTableProps> = ({ matches, 
   // Procesar partidos para calcular estadísticas
   matches.forEach(match => {
     if (match.estado !== 'finalizado') return; // Solo sumar puntos si el partido está finalizado
-    const local = statsByTeam[match.equipoLocal.id];
-    const visitante = statsByTeam[match.equipoVisitante.id];
+    const local = statsByTeam[match.equipoLocal];
+    const visitante = statsByTeam[match.equipoVisitante];
     if (!local || !visitante) return;
 
     // Fútbol
     if (sport.startsWith('futbol')) {
       // Goles
-      local.GF += match.resultado.local;
+      local.GF += match.resultado.local ;
       local.GC += match.resultado.visitante;
       visitante.GF += match.resultado.visitante;
       visitante.GC += match.resultado.local;
